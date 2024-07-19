@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+       
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="display.html">Display Users</a></li>
+                <li><a href="register.html">Register New User</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div id="userDetails">
+            <!-- User details will be populated here -->
+        </div>
+    </main>
+
+    <script>
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('id');
+
+            if (userId) {
+                $.ajax({
+                    url: `http://localhost:8080/api/users/${userId}`,
+                    type: 'GET',
+                    success: function(user) {
+                        $('#userDetails').html(`
+                            <p><strong>Name:</strong> ${user.name}</p>
+                            <p><strong>Surname:</strong> ${user.surname}</p>
+                            <p><strong>Gender:</strong> ${user.gender ? 'Man' : 'Woman'}</p>
+                            <p><strong>Birthdate:</strong> ${user.birthdate}</p>
+                            <p><strong>Work Address:</strong> ${user.address.workAddress}</p>
+                            <p><strong>Home Address:</strong> ${user.address.homeAddress}</p>
+                        `);
+                    },
+                    error: function() {
+                        $('#userDetails').text('Error fetching user details.');
+                    }
+                });
+            } else {
+                $('#userDetails').text('No user ID provided in the URL.');
+            }
+        });
+    </script>
+</body>
+</html>

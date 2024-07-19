@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Users</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <header>
+        
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="register.html">Register New User</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Surname</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be populated here -->
+            </tbody>
+        </table>
+        <p id="responseMessage"></p>
+    </main>
+    <script>
+        $(document).ready(function() {
+            function fetchUsers() {
+                $.ajax({
+                    url: 'http://localhost:8080/api/users/names',
+                    type: 'GET',
+                    success: function(users) {
+                        const $tbody = $('#userTable tbody');
+                        $tbody.empty();
+                        users.forEach(user => {
+                            $tbody.append(`
+                                <tr>
+                                    <td>${user.name}</td>
+                                    <td>${user.surname}</td>
+                                    <td>
+                                        <button class="viewBtn" data-id="${user.userID}">View</button>
+                                        <button class="deleteBtn" data-id="${user.userID}">Delete</button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    },
+                    error: function() {
+                        $('#responseMessage').text('Error fetching users.');
+                    }
+                });
+            }
+
+            fetchUsers();
+
+            $('#userTable').on('click', '.viewBtn', function() {
+                const userId = $(this).data('id');
+                window.location.href = `user_details.html?id=${userId}`;
+            });
+
+            $('#userTable').on('click', '.deleteBtn', function() {
+                const userId = $(this).data('id');
+                $.ajax({
+                    url: `http://localhost:8080/api/users/${userId}`,
+                    type: 'DELETE',
+                    success: function() {
+                        $('#responseMessage').text('User deleted successfully!');
+                        fetchUsers();
+                    },
+                    error: function() {
+                        $('#responseMessage').text('Error deleting user.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
